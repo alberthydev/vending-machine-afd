@@ -1,0 +1,250 @@
+:root {
+  --laranja: #e8973c;
+  --laranja-escuro: #c97a1f;
+  --marrom: #4a3826;
+  --creme: #fdf3e0;
+  --verde: #2f9e44;
+  --vermelho: #d64545;
+  --azul: #2b6cb0;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", Roboto, Arial, sans-serif;
+  background: linear-gradient(135deg, #fdf3e0, #f6e2b8);
+  color: var(--marrom);
+  min-height: 100vh;
+}
+
+header {
+  padding: 28px 20px 16px;
+  text-align: center;
+}
+
+header h1 {
+  margin: 0;
+  font-size: clamp(1.5rem, 4vw, 2.3rem);
+}
+
+header p {
+  margin: 6px 0 0;
+  opacity: 0.8;
+}
+
+main {
+  max-width: 980px;
+  margin: 0 auto;
+  padding: 0 20px 60px;
+  display: grid;
+  gap: 24px;
+}
+
+.card {
+  background: #fffaf0;
+  border: 1px solid #eecf9c;
+  border-radius: 14px;
+  padding: 20px 24px;
+  box-shadow: 0 4px 14px rgba(90, 60, 20, 0.08);
+}
+
+.card h2 {
+  margin-top: 0;
+  color: var(--laranja-escuro);
+  border-bottom: 2px solid var(--laranja);
+  padding-bottom: 8px;
+}
+
+/* --- Painel da máquina --- */
+.maquina {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+}
+
+@media (max-width: 640px) {
+  .maquina { grid-template-columns: 1fr; }
+}
+
+.visor {
+  background: #1b1b1b;
+  color: #7CFC00;
+  font-family: "Consolas", monospace;
+  font-size: 1.6rem;
+  padding: 16px 20px;
+  border-radius: 10px;
+  text-align: center;
+  letter-spacing: 2px;
+  box-shadow: inset 0 0 12px rgba(0,0,0,0.6);
+}
+
+.visor small {
+  display: block;
+  color: #b6ffb6;
+  font-size: 0.85rem;
+  letter-spacing: 1px;
+  margin-top: 4px;
+}
+
+.moedas {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.moeda-btn {
+  width: 74px;
+  height: 74px;
+  border-radius: 50%;
+  border: 3px solid var(--laranja-escuro);
+  background: radial-gradient(circle at 35% 30%, #ffe8b0, #e8973c);
+  color: var(--marrom);
+  font-weight: 800;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 3px 6px rgba(0,0,0,0.2);
+  transition: transform 0.1s;
+}
+.moeda-btn:hover { transform: translateY(-2px); }
+.moeda-btn:active { transform: translateY(1px) scale(0.96); }
+
+.acoes {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+button.reset {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 18px;
+  font-weight: 600;
+  cursor: pointer;
+  background: #b58a53;
+  color: white;
+}
+button.reset:hover { background: #967040; }
+
+.mensagem {
+  text-align: center;
+  min-height: 1.4em;
+  font-weight: 700;
+  margin-top: 10px;
+}
+.mensagem.ok { color: var(--verde); }
+.mensagem.travado { color: var(--vermelho); }
+
+.desenho-maquina {
+  display: flex;
+  justify-content: center;
+}
+
+/* --- Tabela --- */
+table.transicoes {
+  border-collapse: collapse;
+  width: 100%;
+  margin-top: 12px;
+  font-size: 0.92rem;
+}
+table.transicoes th, table.transicoes td {
+  border: 1px solid #eecf9c;
+  padding: 6px 10px;
+  text-align: center;
+}
+table.transicoes th { background: var(--laranja); color: white; }
+table.transicoes tr:nth-child(even) { background: #fbe8c8; }
+table.transicoes td.final { background: #d9f5df; font-weight: 700; }
+table.transicoes td.travado { background: #fbdada; font-weight: 700; }
+
+img#diagrama-jflap {
+  max-width: 100%;
+  border-radius: 10px;
+  border: 1px solid #eecf9c;
+  display: block;
+  margin: 12px auto 0;
+}
+
+pre.codigo {
+  background: #2d2418;
+  color: #f5e6c8;
+  padding: 14px 16px;
+  border-radius: 10px;
+  overflow-x: auto;
+  font-size: 0.84rem;
+  line-height: 1.4;
+}
+
+.trace {
+  margin-top: 10px;
+  font-family: "Consolas", monospace;
+  font-size: 0.9rem;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+.trace .estado {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: var(--creme);
+  border: 1px solid var(--laranja);
+  margin-right: 4px;
+}
+.trace .estado.final { background: #d9f5df; border-color: var(--verde); font-weight: 700; }
+.trace .estado.travado { background: #fbdada; border-color: var(--vermelho); font-weight: 700; }
+.trace .moeda { display:inline-block; margin-right:4px; color: var(--azul); font-weight:700; }
+
+.controles-teste {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+input#sequencia {
+  flex: 1;
+  min-width: 200px;
+  padding: 10px 12px;
+  font-size: 1rem;
+  border: 2px solid #eecf9c;
+  border-radius: 8px;
+}
+button.rodar {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 700;
+  cursor: pointer;
+  background: var(--laranja);
+  color: white;
+}
+button.rodar:hover { background: var(--laranja-escuro); }
+
+.resultado {
+  border-radius: 10px;
+  padding: 12px 16px;
+  border: 1px solid #eecf9c;
+  background: #fffdf8;
+  margin-top: 10px;
+}
+.status {
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 6px;
+  color: white;
+  display: inline-block;
+  font-size: 0.85rem;
+  margin-left: 8px;
+}
+.status.aceito { background: var(--verde); }
+.status.travado { background: var(--vermelho); }
+.status.erro { background: #888; }
+
+footer {
+  text-align: center;
+  padding: 16px;
+  opacity: 0.65;
+  font-size: 0.85rem;
+}

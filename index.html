@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Vending Machine AFD - Trabalho 01</title>
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<header>
+  <h1>Vending Machine - AFD em JavaScript</h1>
+  <p>Moedas de 5, 10 e 25 centavos | Produto de 30 centavos | Implementação por if/switch</p>
+</header>
+
+<main>
+
+  <section class="card">
+    <h2>Simulador</h2>
+    <div class="maquina">
+      <div>
+        <div class="visor">
+          <span id="visor-valor">0¢</span>
+          <small id="visor-estado">estado: 0</small>
+        </div>
+        <div class="moedas">
+          <button class="moeda-btn" onclick="inserirMoeda(5)">5¢</button>
+          <button class="moeda-btn" onclick="inserirMoeda(10)">10¢</button>
+          <button class="moeda-btn" onclick="inserirMoeda(25)">25¢</button>
+        </div>
+        <div class="acoes">
+          <button class="reset" onclick="reiniciarMaquina()">Reiniciar</button>
+        </div>
+        <p class="mensagem" id="mensagem"></p>
+      </div>
+      <div class="desenho-maquina">
+        <svg width="180" height="220" viewBox="0 0 180 220" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="160" height="200" rx="14" fill="#e85d5d" stroke="#2d2418" stroke-width="4"/>
+          <rect x="24" y="26" width="90" height="130" rx="6" fill="#2d2418"/>
+          <rect x="32" y="34" width="30" height="16" fill="#f4c542"/>
+          <rect x="68" y="34" width="30" height="16" fill="#f4c542"/>
+          <rect x="32" y="58" width="30" height="16" fill="#e85d5d"/>
+          <rect x="68" y="58" width="30" height="16" fill="#e85d5d"/>
+          <rect x="32" y="82" width="30" height="16" fill="#4aa3df"/>
+          <rect x="68" y="82" width="30" height="16" fill="#4aa3df"/>
+          <rect x="122" y="30" width="34" height="60" rx="4" fill="#333" stroke="#2d2418" stroke-width="2"/>
+          <rect x="130" y="40" width="18" height="30" fill="#4aa3df"/>
+          <rect x="128" y="100" width="30" height="14" rx="3" fill="#ddd"/>
+          <rect x="40" y="176" width="100" height="24" rx="4" fill="#333"/>
+          <circle cx="34" cy="212" r="8" fill="#666"/>
+          <circle cx="146" cy="212" r="8" fill="#666"/>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>Modelo formal do autômato</h2>
+    <p>
+      <strong>Q</strong> = {0, 5, 10, 15, 20, 25, 30, 30+} &nbsp;|&nbsp;
+      <strong>Σ</strong> = {5, 10, 25} &nbsp;|&nbsp;
+      <strong>q₀</strong> = 0 &nbsp;|&nbsp;
+      <strong>F</strong> = {30}
+    </p>
+    <p>Regra: <code>próximo = valorAtual + moeda</code>; se der exatamente 30 → estado final (libera o produto);
+    se passar de 30 → estado <strong>30+</strong>, uma armadilha (a máquina trava, pois este modelo simples não devolve troco).</p>
+
+    <img id="diagrama-jflap" src="jflap-diagram.png" alt="Diagrama de transições feito no JFLAP" />
+
+    <table class="transicoes">
+      <thead><tr><th>Estado / Moeda</th><th>5</th><th>10</th><th>25</th></tr></thead>
+      <tbody id="tabela-corpo"></tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>Testar uma sequência de moedas</h2>
+    <div class="controles-teste">
+      <input id="sequencia" type="text" placeholder="ex: 5,25 ou 10,10,10" value="5,25" />
+      <button class="rodar" onclick="rodarSequencia()">Simular</button>
+    </div>
+    <div id="resultados"></div>
+  </section>
+
+  <section class="card">
+    <h2>Implementação por if/switch</h2>
+    <p>A cada moeda inserida, soma-se o valor ao estado atual e decide-se na hora o próximo estado: chegou exatamente a 30 → libera o produto; passou de 30 → trava. Direto e fácil de ler para um autômato deste tamanho.</p>
+    <pre class="codigo">function simularPorSwitch(moedas) {
+  let estado = 0;
+  for (const moeda of moedas) {
+    if (estado === 30 || estado === "30+") continue; // self-loop
+    switch (moeda) {
+      case 5: case 10: case 25: {
+        const novoValor = estado + moeda;
+        if (novoValor === 30) estado = 30;
+        else if (novoValor > 30) estado = "30+";
+        else estado = novoValor;
+        break;
+      }
+      default:
+        throw new Error("Moeda inválida: " + moeda);
+    }
+  }
+  return estado; // 30 = produto liberado, "30+" = travado
+}</pre>
+  </section>
+
+</main>
+
+<footer>Trabalho 01 | AFD | Hygor Albert Fernandes Marques</footer>
+
+<script src="vending.js"></script>
+<script>
+const A = window.VENDING_AFD;
+let maquina = new A.VendingMachine();
+
+function atualizarVisor() {
+  const estado = maquina.estado;
+  document.getElementById("visor-valor").textContent =
+    (typeof estado === "number" ? estado : 30) + "¢" + (estado === "30+" ? " (excedido)" : "");
+  document.getElementById("visor-estado").textContent = "estado: " + estado;
+
+  const msg = document.getElementById("mensagem");
+  if (maquina.final) {
+    msg.textContent = "Produto liberado! Pressione Reiniciar.";
+    msg.className = "mensagem ok";
+  } else if (maquina.travado) {
+    msg.textContent = "Valor excedeu o preço - máquina travada. Pressione Reiniciar.";
+    msg.className = "mensagem travado";
+  } else {
+    msg.textContent = "";
+    msg.className = "mensagem";
+  }
+}
+
+function inserirMoeda(moeda) {
+  if (maquina.final || maquina.travado) return;
+  maquina.inserirMoeda(moeda);
+  atualizarVisor();
+}
+
+function reiniciarMaquina() {
+  maquina.reiniciar();
+  atualizarVisor();
+}
+
+function renderTabela() {
+  const corpo = document.getElementById("tabela-corpo");
+  const estados = [0, 5, 10, 15, 20, 25, 30, "30+"];
+  corpo.innerHTML = estados.map(estado => {
+    const linha = A.TABELA_TRANSICOES[estado];
+    const label = estado === 0 ? "→ 0" : estado;
+    const cel = v => {
+      const cls = v === 30 ? "final" : v === "30+" ? "travado" : "";
+      return `<td class="${cls}">${v}</td>`;
+    };
+    return `<tr><td>${label}</td>${cel(linha[5])}${cel(linha[10])}${cel(linha[25])}</tr>`;
+  }).join("");
+}
+
+function badgeEstado(estado, isLast) {
+  const cls = estado === 30 ? "final" : estado === "30+" ? "travado" : "";
+  return `<span class="estado ${isLast ? cls : ""}">${estado}</span>`;
+}
+
+function renderTrace(trace) {
+  return trace.map((passo, i) => {
+    const moedaHtml = passo.moeda !== null ? `<span class="moeda">--${passo.moeda}--&gt;</span>` : "";
+    return moedaHtml + badgeEstado(passo.estado, i === trace.length - 1);
+  }).join(" ");
+}
+
+function renderResultado(resultado) {
+  let statusHtml;
+  if (resultado.erro) statusHtml = `<span class="status erro">ERRO</span>`;
+  else if (resultado.aceito) statusHtml = `<span class="status aceito">PRODUTO LIBERADO</span>`;
+  else if (resultado.travado) statusHtml = `<span class="status travado">TRAVADO</span>`;
+  else statusHtml = `<span class="status" style="background:#999">EM ANDAMENTO</span>`;
+
+  return `<div class="resultado">
+    ${statusHtml}
+    ${resultado.erro ? `<p style="color:#a33">${resultado.erro}</p>` : `<div class="trace">${renderTrace(resultado.trace)}</div>`}
+  </div>`;
+}
+
+function rodarSequencia() {
+  const texto = document.getElementById("sequencia").value.trim();
+  const div = document.getElementById("resultados");
+  if (!texto) { div.innerHTML = `<p style="color:#a33">Digite uma sequência, ex: 5,25</p>`; return; }
+
+  const moedas = texto.split(",").map(s => Number(s.trim()));
+  div.innerHTML = renderResultado(A.simularPorSwitch(moedas));
+}
+
+renderTabela();
+atualizarVisor();
+window.addEventListener("DOMContentLoaded", rodarSequencia);
+</script>
+
+</body>
+</html>
